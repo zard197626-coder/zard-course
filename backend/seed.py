@@ -226,17 +226,21 @@ def seed(database_path: str | None = None, reset: bool = False, admin_password: 
         if sold_product:
             breakdown = price_breakdown(sold_product["price"], True)
             now = iso_now()
+            payment_no = f"MOCK-SEED-{secrets.token_hex(4).upper()}"
             with db.transaction() as connection:
                 connection.execute(
                     "UPDATE products SET status = '已售出', updated_at = ? WHERE id = ?",
                     (now, sold_product["id"]),
                 )
-                connection.execute(
+                order_cursor = connection.execute(
                     """
                     INSERT INTO orders
                         (product_id, buyer_id, seller_id, status, original_price,
-                         discount_amount, final_price, student_discount, created_at, updated_at)
-                    VALUES (?, ?, ?, '已完成', ?, ?, ?, 1, ?, ?)
+                         discount_amount, final_price, student_discount,
+                         payment_status, payment_method, payment_no, paid_at,
+                         refunded_at, refund_amount, created_at, updated_at)
+                    VALUES (?, ?, ?, '已完成', ?, ?, ?, 1,
+                            '已支付', 'mock_card', ?, ?, NULL, '0.00', ?, ?)
                     """,
                     (
                         sold_product["id"],
@@ -245,6 +249,24 @@ def seed(database_path: str | None = None, reset: bool = False, admin_password: 
                         money_text(breakdown["original_price"]),
                         money_text(breakdown["discount_amount"]),
                         money_text(breakdown["final_price"]),
+                        payment_no,
+                        now,
+                        now,
+                        now,
+                    ),
+                )
+                connection.execute(
+                    """
+                    INSERT INTO payments
+                        (order_id, user_id, amount, method, status, transaction_no,
+                         failure_reason, created_at, paid_at, refunded_at)
+                    VALUES (?, ?, ?, 'mock_card', '成功', ?, '', ?, ?, NULL)
+                    """,
+                    (
+                        order_cursor.lastrowid,
+                        buyer["id"],
+                        money_text(breakdown["final_price"]),
+                        payment_no,
                         now,
                         now,
                     ),

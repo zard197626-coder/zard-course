@@ -34,11 +34,12 @@
     }
     recentBox.innerHTML =
       '<div class="table-wrap"><table class="data-table"><thead><tr>' +
-        "<th>订单号</th><th>商品</th><th>买家</th><th>金额</th><th>状态</th><th>创建时间</th>" +
+        "<th>订单号</th><th>商品</th><th>买家</th><th>金额</th><th>支付</th><th>状态</th><th>创建时间</th>" +
       "</tr></thead><tbody>" +
         data.recent_orders.map(function (order) {
           return "<tr><td>#" + order.id + "</td><td>" + App.escapeHtml(order.product.name) + "</td><td>" +
             App.escapeHtml(order.buyer.display_name || order.buyer.username) + "</td><td>¥" + App.money(order.final_price) +
+            "</td><td>" + App.paymentBadge(order.payment.status) +
             '</td><td><span class="status-badge ' + App.statusClass(order.status) + '">' + order.status + "</span></td><td>" +
             App.dateTime(order.created_at) + "</td></tr>";
         }).join("") +

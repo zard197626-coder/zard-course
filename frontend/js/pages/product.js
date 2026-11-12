@@ -140,9 +140,9 @@
     const button = detail.querySelector("[data-buy]");
     App.setButtonLoading(button, true, "正在下单");
     try {
-      await App.api("/api/orders", { method: "POST", body: { product_id: productId } });
-      App.toast("订单已创建，正在等待卖家确认", "success");
-      setTimeout(function () { location.href = "orders.html"; }, 650);
+      const order = await App.api("/api/orders", { method: "POST", body: { product_id: productId } });
+      App.toast("订单已创建，请完成模拟支付", "success");
+      setTimeout(function () { location.href = "payment.html?order_id=" + order.id; }, 650);
       await loadProduct();
     } catch (error) {
       App.toast(App.errorMessage(error), "error");

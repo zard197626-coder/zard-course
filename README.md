@@ -1,6 +1,6 @@
 # 校园集 · 校园二手交易平台
 
-一个面向校园场景的全栈二手交易练习项目：学生和老师可以发布闲置、搜索商品、收藏、留言、下单，并由卖家确认交易。项目保留了最初的 **学生折扣 checkout 逻辑**，下单时由服务端按学生身份自动计算 9 折，金额使用 `Decimal` 计算并保留两位小数。
+一个面向校园场景的全栈二手交易练习项目：学生和老师可以发布闲置、搜索商品、收藏、留言、下单、完成**沙盒模拟支付**，并由卖家确认交易。项目保留了最初的 **学生折扣 checkout 逻辑**，下单时由服务端按学生身份自动计算 9 折，金额使用 `Decimal` 计算并保留两位小数。
 
 - 仓库：<https://github.com/zard197626-coder/zard-course>
 - 后端：Python FastAPI + SQLite
@@ -8,7 +8,7 @@
 - API：RESTful JSON
 - 测试：pytest + FastAPI TestClient + unittest
 
-> 本项目仅用于课程练习。交易流程没有接入真实支付、实名认证或物流系统，请勿用于真实资金交易。
+> 本项目仅用于课程练习。项目提供**模拟支付网关**，但**没有接入真实支付平台**、实名认证或物流系统，不会产生真实扣款，请勿用于真实资金交易。
 
 ---
 
@@ -52,6 +52,19 @@
 - 取消订单后商品自动回到在售；完成订单后商品变为已售出
 - 不能购买自己发布的商品
 
+### 模拟支付网关
+
+- 独立的模拟收银台页面 `payment.html`，明确标注“不会产生真实扣款”
+- 支付方式：校园卡（模拟）、银行卡（模拟）、校园钱包（模拟）
+- 支付状态：`未支付`、`已支付`、`已退款`
+- 买家支付成功后，卖家才能确认订单
+- 支持生成成功支付流水；提供“模拟支付失败”按钮，用于演示失败与重试
+- 支付失败会保留失败流水，订单仍为未支付，可重新支付
+- 重复支付会被拒绝
+- 取消已支付订单时自动模拟退款，恢复商品在售，并记录退款金额和时间
+- 支付流水保存在本地 SQLite 的 `payments` 表，不请求任何第三方支付服务
+- 旧数据库会自动迁移支付字段，并将历史已确认/已完成订单回填为“已支付”
+
 ### 用户中心
 
 - 我的商品
@@ -86,6 +99,7 @@
 | 我的商品页 | `frontend/my-products.html` |
 | 个人中心页 | `frontend/profile.html` |
 | 管理员后台页 | `frontend/admin.html` |
+| 模拟支付页 | `frontend/payment.html` |
 
 页面均为中文界面、响应式布局，包含加载状态、错误提示、表单校验、空数据提示和移动端导航。
 
@@ -97,6 +111,7 @@
 | --- | --- |
 | 后端 | Python 3.10+、FastAPI 0.115、Uvicorn |
 | 数据库 | SQLite 3（标准库 `sqlite3`） |
+| 模拟支付 | 本地沙盒网关，`payments` 支付流水表，不连接第三方 |
 | 密码 | 标准库 `hashlib.pbkdf2_hmac`，310,000 次迭代，随机盐 |
 | 会话 | 随机不透明 Token；数据库保存 SHA-256 摘要 |
 | 前端 | 原生 HTML5、CSS3、JavaScript (ES2017+) |
@@ -128,7 +143,7 @@ student-discount-project/
 │   ├── routers/
 │   │   ├── auth.py           # 注册、登录、退出、当前用户
 │   │   ├── products.py       # 商品、收藏、留言
-│   │   ├── orders.py         # 下单、订单列表、状态流转
+│   │   ├── orders.py         # 下单、模拟支付、订单列表、状态流转
 │   │   ├── users.py          # 用户中心
 │   │   └── admin.py          # 管理员统计与治理
 │   └── tests/
@@ -138,6 +153,7 @@ student-discount-project/
 │       ├── test_products.py
 │       ├── test_favorites_messages.py
 │       ├── test_orders.py
+│       ├── test_payments.py
 │       ├── test_admin.py
 │       └── test_frontend_pages.py
 ├── frontend/
@@ -153,6 +169,7 @@ student-discount-project/
 │   ├── my-products.html
 │   ├── profile.html
 │   ├── admin.html
+│   ├── payment.html
 │   ├── css/styles.css
 │   └── js/
 │       ├── api.js            # API 客户端、鉴权、Toast、卡片、分页等
@@ -245,7 +262,7 @@ python -m backend.seed
 2. 创建全部表、索引和部分唯一索引；
 3. 创建管理员账号；
 4. 创建 3 个演示用户；
-5. 写入 8 件演示商品、收藏、留言，以及一条已完成的学生折扣订单；
+5. 写入 8 件演示商品、收藏、留言，以及一条已完成且带成功支付流水/交易号的学生折扣订单；
 6. **在终端打印一次随机生成的初始密码**，不写入代码或文件。
 
 演示账号：
@@ -288,7 +305,8 @@ python -m backend.seed --reset
 | `products` | 商品、卖家、价格、分类、状态、软删除标记 |
 | `favorites` | 用户收藏，`(user_id, product_id)` 唯一 |
 | `messages` | 商品留言，关联商品和作者 |
-| `orders` | 买家、卖家、商品、状态、原价/折扣/最终价快照 |
+| `orders` | 买家、卖家、商品、状态、原价/折扣/最终价快照、支付状态与交易号 |
+| `payments` | 模拟支付流水：成功、失败、已退款记录 |
 
 ### 关系说明
 
@@ -301,6 +319,8 @@ users 1 ─── N orders          (buyer_id / seller_id)
 products 1 ─ N favorites      (product_id)
 products 1 ─ N messages       (product_id)
 products 1 ─ N orders         (product_id)
+orders 1 ─── N payments       (order_id)
+users 1 ─── N payments        (user_id)
 ```
 
 关键约束：
@@ -310,9 +330,12 @@ products 1 ─ N orders         (product_id)
 - 商品删除为软删除（`is_deleted = 1`），保护历史订单；
 - 外键启用 `PRAGMA foreign_keys = ON`；
 - 订单使用 `BEGIN IMMEDIATE` 事务和条件更新，降低并发重复购买风险；
-- 订单价格以 TEXT 保存的两位小数字符串为准，避免浮点误差。
+- 订单价格以 TEXT 保存的两位小数字符串为准，避免浮点误差；
+- `payments.transaction_no` 唯一，支付成功和失败都会生成沙盒流水；
+- 订单支付状态为 `未支付 / 已支付 / 已退款`，只有已支付订单才能被卖家确认；
+- 旧数据库启动时会执行轻量迁移，自动增加支付字段并回填历史订单。
 
-建表 SQL 完整定义见 `backend/models.py` 的 `SCHEMA_SQL`。
+建表 SQL 完整定义见 `backend/models.py` 的 `SCHEMA_SQL`，迁移逻辑见 `migrate_schema()`。
 
 ---
 
@@ -480,24 +503,49 @@ GET /api/products?q=教材&category=教材书籍&min_price=10&max_price=60&sort=
 | POST | `/api/orders` | 是 | 创建订单，body：`{"product_id": 1}` |
 | GET | `/api/orders` | 是 | 我的订单，`role=all/buyer/seller`、`status`、分页 |
 | GET | `/api/orders/{id}` | 是 | 订单详情，仅买卖双方或管理员 |
+| GET | `/api/orders/{id}/payments` | 是 | 订单的模拟支付流水，仅买卖双方或管理员 |
+| POST | `/api/orders/{id}/pay` | 是 | 买家发起模拟支付 |
 | PUT | `/api/orders/{id}/status` | 是 | 更新状态，body：`{"status": "已确认"}` |
+
+模拟支付请求：
+
+```json
+{
+  "method": "mock_campus",
+  "outcome": "success"
+}
+```
+
+- `method`：`mock_campus`（校园卡）、`mock_card`（银行卡）、`mock_wallet`（校园钱包）；
+- `outcome`：`success` 正常支付，`failure` 仅用于演示失败；失败返回 HTTP `402` 并记录失败流水；
+- 支付成功返回沙盒交易号，如 `MOCK-20261112121246-D25A4BA5`；
+- 不接收卡号、密码、验证码等任何真实支付凭证；
+- 只有订单买家可以支付，只有已支付订单能被卖家确认。
 
 状态流转：
 
-| 当前状态 | 目标 | 允许操作者 |
-| --- | --- | --- |
-| 待确认 | 已确认 | 卖家、管理员 |
-| 待确认 | 已取消 | 买家、卖家、管理员 |
-| 已确认 | 已完成 | 买家、卖家、管理员 |
-| 已确认 | 已取消 | 买家、卖家、管理员 |
-| 已完成 / 已取消 | — | 终态，不可再变更 |
+| 当前状态 | 目标 | 允许操作者 | 前置条件 |
+| --- | --- | --- | --- |
+| 待确认 | 已确认 | 卖家、管理员 | 已支付 |
+| 待确认 | 已取消 | 买家、卖家、管理员 | — |
+| 已确认 | 已完成 | 买家、卖家、管理员 | 已支付 |
+| 已确认 | 已取消 | 买家、卖家、管理员 | — |
+| 已完成 / 已取消 | — | 终态，不可再变更 | — |
+
+取消已支付订单时，系统会在同一事务中：
+
+1. 将订单支付状态改为 `已退款`；
+2. 记录退款金额和退款时间；
+3. 将成功支付流水标记为 `已退款`；
+4. 将商品恢复为 `在售`（若无其他进行中订单）。
 
 下单时服务端会：
 
 1. 校验商品为 `在售` 且不是自己的商品；
 2. 用事务将商品改为 `已预订`；
 3. 调用根目录 `checkout.py` 的 `calculate_total` 计算最终价；
-4. 记录 `original_price`、`discount_amount`、`final_price`、`student_discount`。
+4. 记录 `original_price`、`discount_amount`、`final_price`、`student_discount`；
+5. 订单初始支付状态为 `未支付`，买家支付后卖家的“确认订单”按钮才可用。
 
 学生订单示例：
 
@@ -511,6 +559,22 @@ GET /api/products?q=教材&category=教材书籍&min_price=10&max_price=60&sort=
 ```
 
 非学生订单的 `final_price` 等于原价，`discount_amount` 为 `0.00`。
+
+支付成功后的订单字段示例：
+
+```json
+{
+  "payment": {
+    "status": "已支付",
+    "method": "mock_campus",
+    "method_label": "校园卡（模拟）",
+    "transaction_no": "MOCK-20261112121246-D25A4BA5",
+    "paid_at": "2026-11-12T12:12:46+00:00",
+    "refunded_at": null,
+    "refund_amount": "0.00"
+  }
+}
+```
 
 ### 用户中心
 
@@ -582,13 +646,13 @@ python test_checkout.py
 结果：
 
 ```text
-54 passed, 1 warning in 14.41s
+62 passed, 1 warning in 21.34s
 ```
 
 | 项目 | 数量 |
 | --- | --- |
-| 测试总数 | **54** |
-| 通过 | **54** |
+| 测试总数 | **62** |
+| 通过 | **62** |
 | 失败 | **0** |
 | 警告 | 1 条（第三方 Starlette TestClient 的 `anyio` 弃用提示，不影响功能） |
 
@@ -601,8 +665,9 @@ python test_checkout.py
 | `backend/tests/test_products.py` | 发布、搜索、分类、价格、排序、分页、详情、编辑、删除、越权、校验（7 项） |
 | `backend/tests/test_favorites_messages.py` | 收藏、取消、我的收藏、留言、卖家查看、删除权限、登录要求（5 项） |
 | `backend/tests/test_orders.py` | 学生折扣、非学生原价、重复购买、自购限制、确认/完成、取消回滚、权限、订单列表（9 项） |
+| `backend/tests/test_payments.py` | 模拟支付成功、未支付拦截确认、买家权限、重复支付、失败重试、取消退款、支付校验与流水权限（7 项） |
 | `backend/tests/test_admin.py` | 管理员权限、统计、用户管理、自我停用保护、商品下架/恢复、已售商品恢复、删除留言（7 项） |
-| `backend/tests/test_frontend_pages.py` | 12 个页面均可通过 HTTP 访问（参数化 12 项） |
+| `backend/tests/test_frontend_pages.py` | 13 个页面均可通过 HTTP 访问（参数化 13 项） |
 
 ### 本次额外浏览器验证（不在 pytest 套件内）
 
@@ -613,14 +678,18 @@ python test_checkout.py
 - 真实发布表单创建商品并跳转详情；
 - 学生买家收藏、发送留言、下单；
 - 订单页显示学生 9 折金额（`66.60 → 59.94`）；
+- 模拟支付页成功支付 `¥25.20`，生成 `MOCK-...` 交易号并显示成功回执；
+- 订单页显示“待确认 + 已支付”，已支付订单无重复支付入口；
+- 模拟支付失败后订单保持未支付、显示错误并可重试；
 - 管理员后台统计卡片、用户表和商品表正常渲染；
 - 浏览器运行时无 JavaScript 异常（部分 Unsplash 外链图片被浏览器网络策略拦截时会显示占位图，不影响业务）。
 
-这些浏览器步骤没有加入仓库内的 CI 测试，仓库中的自动化测试仍然是 54 项 API/页面可达性测试。
+这些浏览器步骤没有加入仓库内的 CI 测试，仓库中的自动化测试仍然是 62 项 API/页面可达性测试。
 
 ### 未测试 / 未实现内容
 
-- 未接入真实支付、退款、物流、发票；
+- 未接入真实支付平台（支付宝/微信/Stripe）、真实退款、Webhook、支付回调验签、对账和发票；
+- 当前“支付成功/退款”仅写入本地 SQLite 的模拟流水，不具备任何真实支付效力；
 - 未接入学信网/校园统一身份认证，学生身份是演示字段；
 - 未实现邮件验证、短信验证、找回密码；
 - 未把浏览器端 E2E（Playwright/Cypress）纳入自动化测试和多浏览器兼容矩阵；本次只用 Chrome Headless 做了手动脚本验证；
@@ -682,6 +751,10 @@ python -m pytest -q
 - 所有 SQL 使用参数化查询，不拼接用户输入；
 - 所有写接口校验登录状态和资源归属；
 - 订单价格完全由服务端计算，客户端不能提交金额；
+- 模拟支付金额直接取订单 `final_price`，客户端不能提交金额；
+- 只有订单买家可以支付，只有已支付订单可以被卖家确认；
+- 支付成功后订单支付状态与支付流水在同一事务中写入；
+- 模拟网关不接收卡号、密码、验证码等真实支付凭证；
 - 商品删除采用软删除，保护历史订单；
 - 前端对输出做 HTML 转义，图片 URL 仅允许 http(s) 或站内路径；
 - 统一异常处理，不向前端泄漏堆栈或数据库细节；
@@ -764,10 +837,19 @@ python -m backend.seed
 
 页面上的学生价只是展示估算，最终金额以下单接口返回的 `final_price` 为准；服务端复用 `checkout.calculate_total` 并使用 `ROUND_HALF_UP` 保留两位小数。
 
+### 11. 模拟支付失败怎么办
+
+支付页的“模拟支付失败（测试）”按钮故意触发失败分支，订单会保持 `未支付`，失败流水会保留。重新选择支付方式并点击“确认模拟支付”即可重试；同一个订单支付成功后不能重复支付。
+
+### 12. 是否真的会扣款
+
+不会。模拟支付只写入本地 SQLite 的 `payments` 表，不连接任何银行或第三方支付平台，也不接收真实卡号、密码或验证码。
+
 ---
 
 ## 十四、后续可扩展功能
 
+- 接入 Stripe/支付宝/微信沙箱，增加 Webhook 验签、支付回调、幂等对账和真实退款
 - 图片上传（本地存储或对象存储）与多图相册
 - 校园统一身份认证 / 学号验证，替代手动学生身份字段
 - 站内实时聊天、消息通知、邮件提醒

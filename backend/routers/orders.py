@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
+import secrets
 import sqlite3
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
 
 from ..auth import CurrentUser
-from ..database import Database, iso_now
+from ..database import Database, iso_now, utc_now
 from ..deps import get_db
 from ..models import ORDER_STATUSES
 from ..money import money_text, price_breakdown
 from ..responses import ApiError, ok
-from ..schemas import OrderCreateRequest, OrderStatusUpdateRequest
-from ..serializers import order_data, pagination
+from ..schemas import OrderCreateRequest, OrderStatusUpdateRequest, PaymentCreateRequest
+from ..serializers import order_data, pagination, payment_data
 
 router = APIRouter(prefix="/api/orders", tags=["订单"])
 
@@ -51,6 +52,10 @@ def _can_view(order: dict[str, Any], user: dict[str, Any]) -> bool:
         int(order["buyer_id"]),
         int(order["seller_id"]),
     )
+
+
+def _transaction_no(prefix: str = "MOCK") -> str:
+    return f"{prefix}-{utc_now().strftime('%Y%m%d%H%M%S')}-{secrets.token_hex(4).upper()}"
 
 
 def _transition_allowed(order: dict[str, Any], user: dict[str, Any], target: str) -> bool:
@@ -136,7 +141,7 @@ def create_order(
     except sqlite3.IntegrityError as exc:
         raise ApiError(409, "该商品已被购买，不能重复下单", "ALREADY_PURCHASED") from exc
 
-    return ok(order_data(_fetch_order(db, order_id)), "订单创建成功，等待卖家确认", 201)
+    return ok(order_data(_fetch_order(db, order_id)), "订单创建成功，请完成模拟支付", 201)
 
 
 @router.get("")
@@ -193,6 +198,97 @@ def get_order(
     return ok(order_data(order))
 
 
+@router.get("/{order_id}/payments")
+def list_order_payments(
+    order_id: int,
+    user: CurrentUser,
+    db: Annotated[Database, Depends(get_db)],
+):
+    order = _fetch_order(db, order_id)
+    if not _can_view(order, user):
+        raise ApiError(403, "无权查看该订单的支付记录", "FORBIDDEN")
+    rows = db.fetch_all(
+        "SELECT * FROM payments WHERE order_id = ? ORDER BY created_at DESC, id DESC",
+        (order_id,),
+    )
+    return ok({"items": [payment_data(dict(row)) for row in rows], "total": len(rows)})
+
+
+@router.post("/{order_id}/pay", status_code=201)
+def pay_order(
+    order_id: int,
+    payload: PaymentCreateRequest,
+    user: CurrentUser,
+    db: Annotated[Database, Depends(get_db)],
+):
+    """模拟支付网关：不接触真实银行卡，只生成沙盒支付流水。"""
+    order = _fetch_order(db, order_id)
+    if int(order["buyer_id"]) != int(user["id"]):
+        raise ApiError(403, "只有买家可以支付该订单", "FORBIDDEN")
+    if order["payment_status"] == "已支付":
+        raise ApiError(409, "订单已支付，请勿重复支付", "ALREADY_PAID")
+    if order["payment_status"] == "已退款":
+        raise ApiError(409, "订单已退款，不能再次支付", "PAYMENT_REFUNDED")
+    if order["status"] not in ("待确认", "已确认"):
+        raise ApiError(409, "当前订单状态不可支付", "ORDER_NOT_PAYABLE")
+
+    now = iso_now()
+    if payload.outcome == "failure":
+        failure_no = _transaction_no("MOCK-FAIL")
+        db.execute(
+            """
+            INSERT INTO payments
+                (order_id, user_id, amount, method, status, transaction_no,
+                 failure_reason, created_at, paid_at, refunded_at)
+            VALUES (?, ?, ?, ?, '失败', ?, '模拟支付失败（沙盒测试）', ?, NULL, NULL)
+            """,
+            (order_id, user["id"], order["final_price"], payload.method, failure_no, now),
+        )
+        raise ApiError(
+            402,
+            "模拟支付失败，请检查支付方式后重试",
+            "PAYMENT_FAILED",
+            {"transaction_no": failure_no, "retryable": True},
+        )
+
+    payment_no = _transaction_no("MOCK")
+    try:
+        with db.transaction() as connection:
+            changed = connection.execute(
+                """
+                UPDATE orders
+                SET payment_status = '已支付', payment_method = ?, payment_no = ?,
+                    paid_at = ?, updated_at = ?
+                WHERE id = ? AND payment_status = '未支付'
+                  AND status IN ('待确认', '已确认')
+                """,
+                (payload.method, payment_no, now, now, order_id),
+            )
+            if changed.rowcount != 1:
+                raise ApiError(409, "订单状态已变化，无法完成支付", "PAYMENT_CONFLICT")
+            connection.execute(
+                """
+                INSERT INTO payments
+                    (order_id, user_id, amount, method, status, transaction_no,
+                     failure_reason, created_at, paid_at, refunded_at)
+                VALUES (?, ?, ?, ?, '成功', ?, '', ?, ?, NULL)
+                """,
+                (order_id, user["id"], order["final_price"], payload.method, payment_no, now, now),
+            )
+    except sqlite3.IntegrityError as exc:
+        raise ApiError(409, "支付流水冲突，请稍后重试", "PAYMENT_CONFLICT") from exc
+
+    payment = db.fetch_one("SELECT * FROM payments WHERE transaction_no = ?", (payment_no,))
+    return ok(
+        {
+            "order": order_data(_fetch_order(db, order_id)),
+            "payment": payment_data(dict(payment)),
+        },
+        "模拟支付成功",
+        201,
+    )
+
+
 @router.put("/{order_id}/status")
 def update_order_status(
     order_id: int,
@@ -205,6 +301,8 @@ def update_order_status(
         raise ApiError(403, "无权操作该订单", "FORBIDDEN")
     if not _transition_allowed(order, user, payload.status):
         raise ApiError(409, f"不能将订单从“{order['status']}”变更为“{payload.status}”", "INVALID_TRANSITION")
+    if payload.status in ("已确认", "已完成") and order["payment_status"] != "已支付":
+        raise ApiError(409, "买家尚未完成模拟支付，不能确认或完成订单", "PAYMENT_REQUIRED")
 
     now = iso_now()
     try:
@@ -221,6 +319,22 @@ def update_order_status(
                     (now, order["product_id"]),
                 )
             elif payload.status == "已取消":
+                if order["payment_status"] == "已支付":
+                    connection.execute(
+                        """
+                        UPDATE orders
+                        SET payment_status = '已退款', refunded_at = ?, refund_amount = ?
+                        WHERE id = ?
+                        """,
+                        (now, order["final_price"], order_id),
+                    )
+                    connection.execute(
+                        """
+                        UPDATE payments SET status = '已退款', refunded_at = ?
+                        WHERE order_id = ? AND status = '成功'
+                        """,
+                        (now, order_id),
+                    )
                 connection.execute(
                     """
                     UPDATE products SET status = '在售', updated_at = ?

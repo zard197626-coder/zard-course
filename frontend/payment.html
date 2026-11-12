@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="校园集模拟支付网关，仅用于课程演示，不会产生真实扣款。">
+  <title>模拟支付 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="orders">
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <h1>模拟支付</h1>
+          <p>沙盒支付网关，用于演示订单支付流程，不会产生真实扣款。</p>
+        </div>
+        <a class="btn btn-ghost" href="orders.html">返回我的订单</a>
+      </div>
+      <div id="payment-content">
+        <div class="loading-block"><div class="spinner"></div><span>正在加载订单…</span></div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/payment.js"></script>
+</body>
+</html>

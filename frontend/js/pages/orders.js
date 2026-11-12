@@ -15,8 +15,13 @@
 
   function actionButtons(order) {
     const buttons = [];
+    const paymentStatus = (order.payment && order.payment.status) || "未支付";
+    const paid = paymentStatus === "已支付";
     if (order.status === "待确认") {
-      if (order.viewer_role === "seller") {
+      if (order.viewer_role === "buyer" && !paid) {
+        buttons.push('<a class="btn btn-accent btn-sm" href="payment.html?order_id=' + order.id + '">去支付</a>');
+      }
+      if (order.viewer_role === "seller" && paid) {
         buttons.push('<button class="btn btn-primary btn-sm" data-order="' + order.id + '" data-target="已确认">确认订单</button>');
       }
       buttons.push('<button class="btn btn-danger btn-sm" data-order="' + order.id + '" data-target="已取消">取消订单</button>');
@@ -35,10 +40,23 @@
     const roleText = order.viewer_role === "seller"
       ? "买家：" + (order.buyer.display_name || order.buyer.username)
       : "卖家：" + (order.seller.display_name || order.seller.username);
+    const paymentStatus = (order.payment && order.payment.status) || "未支付";
+    const refundNote = paymentStatus === "已退款"
+      ? '<div class="order-note">已模拟退款 ¥' + App.money(order.payment.refund_amount) + "，商品已重新回到市场。</div>"
+      : "";
+    const paymentNote = paymentStatus === "未支付"
+      ? (order.viewer_role === "buyer"
+          ? '<div class="order-note">订单尚未支付。完成模拟支付后，卖家才能确认订单。</div>'
+          : '<div class="order-note">买家尚未完成模拟支付，支付后你才能确认订单。</div>')
+      : paymentStatus === "已支付" && order.status === "待确认"
+        ? '<div class="order-note">买家已完成模拟支付，' +
+          (order.viewer_role === "seller" ? "请确认订单。" : "等待卖家确认订单。") + "</div>"
+        : "";
     return (
       '<article class="order-card">' +
         '<div class="order-top"><span>订单号 <strong>#' + order.id + "</strong> · " + App.dateTime(order.created_at) + "</span>" +
-          '<span class="status-badge ' + App.statusClass(order.status) + '">' + App.escapeHtml(order.status) + "</span></div>" +
+          '<span class="order-badges"><span class="status-badge ' + App.statusClass(order.status) + '">' + App.escapeHtml(order.status) + "</span> " +
+          App.paymentBadge(paymentStatus) + "</span></div>" +
         '<div class="order-body">' +
           '<a class="order-thumb" href="product.html?id=' + order.product.id + '">' + thumb(order) + "</a>" +
           "<div>" +
@@ -51,7 +69,8 @@
               (Number(order.discount_amount) > 0 ? " · 优惠 ¥" + App.money(order.discount_amount) : " · 无优惠") +
             "</span></div>" +
         "</div>" +
-        (order.status === "待确认" ? '<div class="order-note">等待卖家确认订单，确认后请按约定完成校内交易。</div>' : "") +
+        paymentNote +
+        refundNote +
         (order.status === "已确认" ? '<div class="order-note">订单已确认，请当面验货并完成交易；完成后点击“' +
           (order.viewer_role === "seller" ? "标记已完成" : "确认收货") + "”。</div>" : "") +
         actionButtons(order) +
@@ -62,7 +81,9 @@
   async function updateStatus(orderId, target, button) {
     const actionText = target === "已取消" ? "取消订单" : target === "已确认" ? "确认订单" : "完成订单";
     const confirmed = await App.confirmAction(
-      target === "已取消" ? "取消后商品会重新回到市场，确定取消这笔订单吗？" : "确认将订单状态更新为“" + target + "”？",
+      target === "已取消"
+        ? "取消后商品会重新回到市场；如买家已模拟支付，将自动模拟退款。确定取消这笔订单吗？"
+        : "确认将订单状态更新为“" + target + "”？",
       actionText,
       "确认"
     );

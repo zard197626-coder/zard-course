@@ -9,6 +9,12 @@ def _complete_order(client, admin_token, price="100.00"):
     product = create_product(client, seller["token"], price=price, name="管理员统计商品")
     created = client.post("/api/orders", headers=auth(buyer["token"]), json={"product_id": product["id"]})
     order = created.json()["data"]
+    paid = client.post(
+        f"/api/orders/{order['id']}/pay",
+        headers=auth(buyer["token"]),
+        json={"method": "mock_card", "outcome": "success"},
+    )
+    assert paid.status_code == 201, paid.text
     client.put(f"/api/orders/{order['id']}/status", headers=auth(seller["token"]), json={"status": "已确认"})
     client.put(f"/api/orders/{order['id']}/status", headers=auth(buyer["token"]), json={"status": "已完成"})
     return seller, buyer, order

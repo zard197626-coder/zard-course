@@ -441,6 +441,12 @@ button {
   animation: spin 0.7s linear infinite;
 }
 
+.btn-ghost .btn-spinner,
+.btn-outline .btn-spinner {
+  border-color: rgba(15, 118, 110, 0.2);
+  border-top-color: var(--brand);
+}
+
 /* ---------- Hero / home ---------- */
 .hero {
   position: relative;
@@ -1635,6 +1641,13 @@ button {
   color: var(--ink);
 }
 
+.order-badges {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .order-body {
   display: grid;
   grid-template-columns: 92px minmax(0, 1fr) minmax(200px, 0.65fr);
@@ -2431,6 +2444,286 @@ button {
   .manage-thumb {
     width: 64px;
     height: 58px;
+  }
+}
+
+/* ---------- Mock payment ---------- */
+.sandbox-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 13px 15px;
+  border: 1px solid #f1d493;
+  border-radius: 12px;
+  color: #6b4a00;
+  background: var(--accent-soft);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+.payment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.7fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.mock-gateway {
+  overflow: hidden;
+}
+
+.mock-gateway-head {
+  padding: 22px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(255, 209, 102, 0.28), transparent 32%),
+    linear-gradient(135deg, #133e38, #0f766e);
+}
+
+.mock-gateway-head h2 {
+  margin: 0 0 5px;
+  font-size: 1.25rem;
+}
+
+.mock-gateway-head p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.82rem;
+}
+
+.mock-amount {
+  margin-top: 18px;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.mock-amount small {
+  margin-left: 4px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.payment-methods {
+  display: grid;
+  gap: 9px;
+  margin: 18px 0;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: border 0.16s ease, background 0.16s ease;
+}
+
+.payment-method:hover {
+  border-color: #b9d7d1;
+  background: #fbfdfc;
+}
+
+.payment-method:has(input:checked) {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.08);
+}
+
+.payment-method input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--brand);
+}
+
+.payment-method-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: #f3f7f5;
+  font-size: 1.15rem;
+}
+
+.payment-method strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.payment-method small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.mock-card-preview {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 18px;
+  padding: 20px;
+  border-radius: 16px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.16), transparent 28%),
+    linear-gradient(120deg, #183f39, #28675e);
+  box-shadow: 0 14px 30px rgba(19, 42, 37, 0.18);
+}
+
+.mock-card-preview::after {
+  content: "SANDBOX";
+  position: absolute;
+  right: 15px;
+  bottom: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+}
+
+.mock-chip {
+  width: 34px;
+  height: 25px;
+  margin-bottom: 24px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #ffd166, #d99b19);
+}
+
+.mock-card-number {
+  font-size: 1.02rem;
+  letter-spacing: 0.19em;
+  font-variant-numeric: tabular-nums;
+}
+
+.mock-card-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.68rem;
+}
+
+.payment-summary-item {
+  display: flex;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid #edf2f0;
+}
+
+.payment-summary-item:last-child {
+  border-bottom: 0;
+}
+
+.payment-summary-thumb {
+  width: 64px;
+  height: 56px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.payment-summary-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.payment-summary-item strong {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.payment-summary-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.payment-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px dashed #cfdcd8;
+}
+
+.payment-total .price {
+  font-size: 1.5rem;
+}
+
+.payment-success {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 36px;
+  text-align: center;
+}
+
+.payment-success-icon {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  color: var(--success);
+  background: var(--success-soft);
+  font-size: 2rem;
+}
+
+.payment-success h2 {
+  margin: 0 0 7px;
+  font-size: 1.4rem;
+}
+
+.payment-success p {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.payment-receipt {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 22px 0;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  text-align: left;
+}
+
+.payment-receipt span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.payment-receipt strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 0.84rem;
+}
+
+@media (max-width: 820px) {
+  .payment-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .payment-receipt {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-success {
+    padding: 26px 18px;
   }
 }
 

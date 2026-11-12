@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .models import PAYMENT_METHODS
 from .money import as_money, money_text
 
 
@@ -62,7 +63,15 @@ def product_data(row: dict[str, Any], *, include_description: bool = True) -> di
     return data
 
 
+def payment_method_label(method: str) -> str:
+    if method == "mock_legacy":
+        return "历史模拟支付（已迁移）"
+    return PAYMENT_METHODS.get(method, "模拟支付")
+
+
 def order_data(row: dict[str, Any]) -> dict[str, Any]:
+    payment_status = row.get("payment_status") or "未支付"
+    payment_method = row.get("payment_method") or ""
     return {
         "id": row["id"],
         "status": row["status"],
@@ -93,6 +102,31 @@ def order_data(row: dict[str, Any]) -> dict[str, Any]:
             "display_name": row.get("seller_display_name") or row.get("seller_username", ""),
             "avatar_url": row.get("seller_avatar_url", ""),
         },
+        "payment": {
+            "status": payment_status,
+            "method": payment_method,
+            "method_label": payment_method_label(payment_method) if payment_method else "",
+            "transaction_no": row.get("payment_no") or "",
+            "paid_at": row.get("paid_at"),
+            "refunded_at": row.get("refunded_at"),
+            "refund_amount": money_text(row.get("refund_amount") or "0.00"),
+        },
+    }
+
+
+def payment_data(row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": row["id"],
+        "order_id": row["order_id"],
+        "amount": money_text(row["amount"]),
+        "method": row["method"],
+        "method_label": payment_method_label(row["method"]),
+        "status": row["status"],
+        "transaction_no": row["transaction_no"],
+        "failure_reason": row.get("failure_reason", ""),
+        "created_at": row.get("created_at"),
+        "paid_at": row.get("paid_at"),
+        "refunded_at": row.get("refunded_at"),
     }
 
 

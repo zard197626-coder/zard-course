@@ -15,6 +15,7 @@ PAGES = [
     "/my-products.html",
     "/profile.html",
     "/admin.html",
+    "/payment.html",
 ]
 
 

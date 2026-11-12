@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from .models import ORDER_STATUSES, PRODUCT_CATEGORIES, PRODUCT_STATUSES
+from .models import ORDER_STATUSES, PAYMENT_METHODS, PRODUCT_CATEGORIES, PRODUCT_STATUSES
 from .money import as_money
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -188,6 +188,27 @@ class OrderStatusUpdateRequest(BaseModel):
     def status_valid(cls, value: str) -> str:
         if value not in ORDER_STATUSES:
             raise ValueError("订单状态不合法")
+        return value
+
+
+class PaymentCreateRequest(BaseModel):
+    """模拟支付请求；outcome=failure 仅用于演示失败场景。"""
+
+    method: str = "mock_card"
+    outcome: str = "success"
+
+    @field_validator("method")
+    @classmethod
+    def method_valid(cls, value: str) -> str:
+        if value not in PAYMENT_METHODS:
+            raise ValueError("支付方式不合法")
+        return value
+
+    @field_validator("outcome")
+    @classmethod
+    def outcome_valid(cls, value: str) -> str:
+        if value not in ("success", "failure"):
+            raise ValueError("模拟支付结果不合法")
         return value
 
 

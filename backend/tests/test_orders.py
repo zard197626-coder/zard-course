@@ -3,11 +3,24 @@ from __future__ import annotations
 from .helpers import auth, create_product, register_user
 
 
-def _create_order(client, seller_token, buyer_token, price="100.00", name="订单商品"):
+def _pay_order(client, buyer_token, order_id, outcome="success", method="mock_card"):
+    response = client.post(
+        f"/api/orders/{order_id}/pay",
+        headers=auth(buyer_token),
+        json={"method": method, "outcome": outcome},
+    )
+    assert response.status_code == 201, response.text
+    return response.json()["data"]
+
+
+def _create_order(client, seller_token, buyer_token, price="100.00", name="订单商品", pay=True):
     product = create_product(client, seller_token, name=name, price=price)
     response = client.post("/api/orders", headers=auth(buyer_token), json={"product_id": product["id"]})
     assert response.status_code == 201, response.text
-    return product, response.json()["data"]
+    order = response.json()["data"]
+    if pay:
+        _pay_order(client, buyer_token, order["id"])
+    return product, order
 
 
 def test_student_order_gets_ten_percent_discount(client):

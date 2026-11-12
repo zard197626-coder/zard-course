@@ -192,7 +192,33 @@
         已确认: "status-confirmed",
         已完成: "status-success",
         已取消: "status-cancelled",
+        未支付: "status-pending",
+        已支付: "status-success",
+        已退款: "status-neutral",
+        成功: "status-success",
+        失败: "status-off",
       }[status] || "status-neutral"
+    );
+  }
+
+  const PAYMENT_METHOD_LABELS = {
+    mock_campus: "校园卡（模拟）",
+    mock_card: "银行卡（模拟）",
+    mock_wallet: "校园钱包（模拟）",
+    mock_legacy: "历史模拟支付",
+  };
+
+  function paymentMethodLabel(method) {
+    return PAYMENT_METHOD_LABELS[method] || "模拟支付";
+  }
+
+  function paymentBadge(status) {
+    const value = status || "未支付";
+    return (
+      '<span class="badge ' + statusClass(value) + '">' +
+        (value === "已支付" ? "✓ " : value === "已退款" ? "↩ " : "● ") +
+        escapeHtml(value) +
+      "</span>"
     );
   }
 
@@ -452,6 +478,8 @@
     timeAgo,
     categoryEmoji,
     statusClass,
+    paymentMethodLabel,
+    paymentBadge,
     initials,
     avatarHtml,
     imageBlock,
