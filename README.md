@@ -582,13 +582,13 @@ python test_checkout.py
 结果：
 
 ```text
-53 passed, 1 warning in 15.55s
+54 passed, 1 warning in 14.41s
 ```
 
 | 项目 | 数量 |
 | --- | --- |
-| 测试总数 | **53** |
-| 通过 | **53** |
+| 测试总数 | **54** |
+| 通过 | **54** |
 | 失败 | **0** |
 | 警告 | 1 条（第三方 Starlette TestClient 的 `anyio` 弃用提示，不影响功能） |
 
@@ -597,19 +597,33 @@ python test_checkout.py
 | 测试文件 | 覆盖内容 |
 | --- | --- |
 | `test_checkout.py` | 学生 9 折、非学生原价、四舍五入、负数校验、兼容函数（5 项） |
-| `backend/tests/test_auth.py` | 注册、重复用户名/邮箱、密码哈希、登录、错误密码、鉴权、退出、资料和密码修改（8 项） |
+| `backend/tests/test_auth.py` | 注册、重复用户名/邮箱、密码哈希、登录、错误密码、鉴权、退出、资料和密码修改（9 项） |
 | `backend/tests/test_products.py` | 发布、搜索、分类、价格、排序、分页、详情、编辑、删除、越权、校验（7 项） |
-| `backend/tests/test_favorites_messages.py` | 收藏、取消、我的收藏、留言、卖家查看、删除权限、登录要求（6 项） |
-| `backend/tests/test_orders.py` | 学生折扣、非学生原价、重复购买、自购限制、确认/完成、取消回滚、权限、订单列表（10 项） |
-| `backend/tests/test_admin.py` | 管理员权限、统计、用户管理、自我停用保护、商品下架/恢复、删除留言（7 项） |
-| `backend/tests/test_frontend_pages.py` | 12 个页面均可通过 HTTP 访问（12 项） |
+| `backend/tests/test_favorites_messages.py` | 收藏、取消、我的收藏、留言、卖家查看、删除权限、登录要求（5 项） |
+| `backend/tests/test_orders.py` | 学生折扣、非学生原价、重复购买、自购限制、确认/完成、取消回滚、权限、订单列表（9 项） |
+| `backend/tests/test_admin.py` | 管理员权限、统计、用户管理、自我停用保护、商品下架/恢复、已售商品恢复、删除留言（7 项） |
+| `backend/tests/test_frontend_pages.py` | 12 个页面均可通过 HTTP 访问（参数化 12 项） |
+
+### 本次额外浏览器验证（不在 pytest 套件内）
+
+除自动化测试外，开发过程中使用 Chrome Headless + CDP 实际验证了：
+
+- 桌面端 1440px 和移动端 390px 首页无横向溢出；
+- 真实登录表单登录管理员；
+- 真实发布表单创建商品并跳转详情；
+- 学生买家收藏、发送留言、下单；
+- 订单页显示学生 9 折金额（`66.60 → 59.94`）；
+- 管理员后台统计卡片、用户表和商品表正常渲染；
+- 浏览器运行时无 JavaScript 异常（部分 Unsplash 外链图片被浏览器网络策略拦截时会显示占位图，不影响业务）。
+
+这些浏览器步骤没有加入仓库内的 CI 测试，仓库中的自动化测试仍然是 54 项 API/页面可达性测试。
 
 ### 未测试 / 未实现内容
 
 - 未接入真实支付、退款、物流、发票；
 - 未接入学信网/校园统一身份认证，学生身份是演示字段；
 - 未实现邮件验证、短信验证、找回密码；
-- 未做浏览器端 E2E 自动化（Playwright/Cypress）和多浏览器兼容矩阵；
+- 未把浏览器端 E2E（Playwright/Cypress）纳入自动化测试和多浏览器兼容矩阵；本次只用 Chrome Headless 做了手动脚本验证；
 - 未做高并发压力测试和 SQLite 多进程写入压测；
 - 未实现图片上传，当前只保存图片 URL；
 - 未实现实时聊天、站内通知、举报审核流；

@@ -225,7 +225,11 @@ def restore_product(
         "SELECT id FROM orders WHERE product_id = ? AND status IN ('待确认', '已确认')",
         (product_id,),
     )
-    new_status = "已预订" if open_order else "在售"
+    completed_order = db.fetch_one(
+        "SELECT id FROM orders WHERE product_id = ? AND status = '已完成'",
+        (product_id,),
+    )
+    new_status = "已售出" if completed_order else "已预订" if open_order else "在售"
     db.execute(
         "UPDATE products SET status = ?, moderation_note = '', updated_at = ? WHERE id = ?",
         (new_status, iso_now(), product_id),

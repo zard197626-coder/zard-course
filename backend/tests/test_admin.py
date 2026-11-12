@@ -96,6 +96,23 @@ def test_admin_takedown_and_restore_product(client):
     assert client.get(f"/api/products/{product['id']}").status_code == 200
 
 
+def test_admin_restore_sold_product_keeps_sold_status(client):
+    admin = register_user(client, "admin006", role="admin")
+    _, _, order = _complete_order(client, admin["token"], price="50.00")
+    product_id = order["product"]["id"]
+    client.put(
+        f"/api/admin/products/{product_id}/takedown",
+        headers=auth(admin["token"]),
+        json={"reason": "复核完成订单商品"},
+    )
+    restore = client.put(
+        f"/api/admin/products/{product_id}/restore",
+        headers=auth(admin["token"]),
+    )
+    assert restore.status_code == 200
+    assert restore.json()["data"]["status"] == "已售出"
+
+
 def test_admin_can_delete_message(client):
     admin = register_user(client, "admin005", role="admin")
     seller = register_user(client, "modseller")

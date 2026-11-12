@@ -2348,6 +2348,7 @@ button {
   }
 
   .filter-row .search-field,
+  .filter-row .price-field,
   .filter-actions {
     grid-column: 1 / -1;
   }

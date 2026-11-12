@@ -105,19 +105,25 @@
     if (!App.requireAuth("product.html?id=" + productId)) return;
     const button = detail.querySelector("[data-favorite]");
     App.setButtonLoading(button, true, "处理中");
+    let updated = false;
     try {
       const data = await App.api("/api/products/" + productId + "/favorite", {
         method: product.is_favorited ? "DELETE" : "POST",
       });
       product.is_favorited = data.is_favorited;
       product.favorite_count = data.favorite_count;
+      button.disabled = false;
+      delete button.dataset.originalText;
       button.className = "btn " + (data.is_favorited ? "btn-danger" : "btn-ghost");
       button.textContent = data.is_favorited ? "♥ 已收藏" : "♡ 收藏";
+      const countElement = detail.querySelector(".favorite-count");
+      if (countElement) countElement.textContent = "♡ " + data.favorite_count + " 人收藏";
       App.toast(data.is_favorited ? "已加入收藏" : "已取消收藏", "success");
+      updated = true;
     } catch (error) {
       App.toast(App.errorMessage(error), "error");
     } finally {
-      App.setButtonLoading(button, false);
+      if (!updated) App.setButtonLoading(button, false);
     }
   }
 
