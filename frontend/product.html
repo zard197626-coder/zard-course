@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="查看校园二手商品详情、卖家信息并留言沟通。">
+  <title>商品详情 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="products">
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page">
+    <div class="container">
+      <nav class="breadcrumbs" aria-label="面包屑">
+        <a href="index.html">首页</a><span>/</span>
+        <a href="products.html">逛市场</a><span>/</span>
+        <span>商品详情</span>
+      </nav>
+      <div id="product-detail">
+        <div class="loading-block"><div class="spinner"></div><span>正在加载商品详情…</span></div>
+      </div>
+      <div id="message-section"></div>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/product.js"></script>
+</body>
+</html>

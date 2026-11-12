@@ -1,0 +1,120 @@
+"""数据库表结构与领域常量。"""
+
+PRODUCT_STATUSES = ("在售", "已预订", "已售出", "已下架")
+PRODUCT_CATEGORIES = (
+    "教材书籍",
+    "电子数码",
+    "生活用品",
+    "运动户外",
+    "服饰鞋包",
+    "美妆个护",
+    "票券卡券",
+    "其他",
+)
+ORDER_STATUSES = ("待确认", "已确认", "已完成", "已取消")
+ACTIVE_ORDER_STATUSES = ("待确认", "已确认", "已完成")
+CAMPUSES = ("主校区", "东校区", "西校区", "南校区", "北校区")
+
+SCHEMA_SQL = """
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL COLLATE NOCASE UNIQUE,
+    email TEXT NOT NULL COLLATE NOCASE UNIQUE,
+    password_hash TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    is_student INTEGER NOT NULL DEFAULT 1 CHECK (is_student IN (0, 1)),
+    role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+    campus TEXT NOT NULL DEFAULT '',
+    bio TEXT NOT NULL DEFAULT '',
+    avatar_url TEXT NOT NULL DEFAULT '',
+    is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL UNIQUE,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    seller_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    price TEXT NOT NULL,
+    category TEXT NOT NULL,
+    image_url TEXT NOT NULL DEFAULT '',
+    campus TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT '在售'
+        CHECK (status IN ('在售', '已预订', '已售出', '已下架')),
+    moderation_note TEXT NOT NULL DEFAULT '',
+    is_deleted INTEGER NOT NULL DEFAULT 0 CHECK (is_deleted IN (0, 1)),
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS favorites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    created_at TEXT NOT NULL,
+    UNIQUE (user_id, product_id)
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+    buyer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    seller_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    status TEXT NOT NULL DEFAULT '待确认'
+        CHECK (status IN ('待确认', '已确认', '已完成', '已取消')),
+    original_price TEXT NOT NULL,
+    discount_amount TEXT NOT NULL,
+    final_price TEXT NOT NULL,
+    student_discount INTEGER NOT NULL DEFAULT 0 CHECK (student_discount IN (0, 1)),
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_active_product
+    ON orders(product_id)
+    WHERE status IN ('待确认', '已确认', '已完成');
+
+CREATE INDEX IF NOT EXISTS idx_products_status_created
+    ON products(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_products_category
+    ON products(category);
+CREATE INDEX IF NOT EXISTS idx_products_seller
+    ON products(seller_id);
+CREATE INDEX IF NOT EXISTS idx_favorites_user
+    ON favorites(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_product
+    ON messages(product_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_buyer
+    ON orders(buyer_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_seller
+    ON orders(seller_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sessions_token
+    ON sessions(token_hash);
+CREATE INDEX IF NOT EXISTS idx_sessions_user
+    ON sessions(user_id);
+"""
+
+
+def init_schema(connection) -> None:
+    """在给定连接上创建全部表和索引（幂等）。"""
+    connection.executescript(SCHEMA_SQL)
+    connection.commit()

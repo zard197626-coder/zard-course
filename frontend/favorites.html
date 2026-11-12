@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="查看我收藏的校园二手商品。">
+  <title>我的收藏 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="favorites">
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <h1>我的收藏</h1>
+          <p>把心动的好物先收起来，想好之后再联系卖家。</p>
+        </div>
+        <a class="btn btn-ghost" href="products.html">继续逛市场</a>
+      </div>
+      <div class="product-grid" id="favorite-list" aria-live="polite"></div>
+      <div class="pagination" id="favorite-pagination"></div>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/favorites.js"></script>
+</body>
+</html>

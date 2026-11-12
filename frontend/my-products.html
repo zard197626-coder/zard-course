@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="管理我发布的校园二手商品。">
+  <title>我的商品 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="my-products">
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <h1>我的商品</h1>
+          <p>管理已发布的闲置，查看状态、编辑信息或删除商品。</p>
+        </div>
+        <a class="btn btn-primary" href="publish.html">＋ 发布新商品</a>
+      </div>
+
+      <div class="row-between" style="margin-bottom:18px">
+        <div class="tabs" id="status-tabs" aria-label="商品状态筛选">
+          <button class="tab active" type="button" data-status="">全部</button>
+          <button class="tab" type="button" data-status="在售">在售</button>
+          <button class="tab" type="button" data-status="已预订">已预订</button>
+          <button class="tab" type="button" data-status="已售出">已售出</button>
+          <button class="tab" type="button" data-status="已下架">已下架</button>
+        </div>
+        <span class="muted small" id="my-products-count"></span>
+      </div>
+
+      <div id="my-products-list" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/my-products.js"></script>
+</body>
+</html>

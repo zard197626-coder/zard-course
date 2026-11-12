@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="浏览校园二手商品，按关键词、分类、校区和价格筛选。">
+  <title>逛市场 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="products">
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <h1>逛市场</h1>
+          <p>教材、数码、生活好物，都是同学们正在出手的闲置。</p>
+        </div>
+        <a class="btn btn-primary" href="publish.html">＋ 发布闲置</a>
+      </div>
+
+      <form class="filter-panel" id="filter-form">
+        <div class="filter-row">
+          <div class="form-field search-field">
+            <label for="filter-q">关键词</label>
+            <input class="input" id="filter-q" name="q" type="search" placeholder="搜索商品名称或描述">
+          </div>
+          <div class="form-field">
+            <label for="filter-category">分类</label>
+            <select class="select" id="filter-category" name="category">
+              <option value="">全部分类</option>
+              <option value="教材书籍">教材书籍</option>
+              <option value="电子数码">电子数码</option>
+              <option value="生活用品">生活用品</option>
+              <option value="运动户外">运动户外</option>
+              <option value="服饰鞋包">服饰鞋包</option>
+              <option value="美妆个护">美妆个护</option>
+              <option value="票券卡券">票券卡券</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="filter-campus">校区</label>
+            <select class="select" id="filter-campus" name="campus">
+              <option value="">全部校区</option>
+              <option value="主校区">主校区</option>
+              <option value="东校区">东校区</option>
+              <option value="西校区">西校区</option>
+              <option value="南校区">南校区</option>
+              <option value="北校区">北校区</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="filter-min">价格区间</label>
+            <div style="display:flex;gap:6px">
+              <input class="input" id="filter-min" name="min_price" type="number" min="0" step="0.01" placeholder="最低价">
+              <input class="input" id="filter-max" name="max_price" type="number" min="0" step="0.01" placeholder="最高价">
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="filter-sort">排序</label>
+            <select class="select" id="filter-sort" name="sort">
+              <option value="newest">最新发布</option>
+              <option value="oldest">最早发布</option>
+              <option value="price_asc">价格从低到高</option>
+              <option value="price_desc">价格从高到低</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary" type="submit">筛选</button>
+            <button class="btn btn-ghost" type="button" id="reset-filter">重置</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="result-line">
+        <span id="result-summary">正在加载商品…</span>
+        <span class="chip" id="active-count"></span>
+      </div>
+
+      <div class="product-grid" id="product-list" aria-live="polite"></div>
+      <div id="product-error"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/products.js"></script>
+</body>
+</html>

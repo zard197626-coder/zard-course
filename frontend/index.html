@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="校园集——面向校园的二手交易平台，教材、数码、生活好物在同学之间继续流动。">
+  <title>校园集 · 校园二手交易平台</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="home">
+  <header id="site-header" class="site-header"></header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="hero-badge">🌿 校园闲置循环计划</span>
+          <h1>让闲置在校园里<br><em>继续发光</em></h1>
+          <p>教材、数码、宿舍好物，从一个同学到另一个同学。校内见面交易，价格透明，学生用户结算再享 9 折。</p>
+          <form class="hero-search" id="hero-search">
+            <label class="sr-only" for="hero-keyword">搜索商品</label>
+            <input id="hero-keyword" name="q" type="search" placeholder="搜教材、耳机、台灯、球拍…" autocomplete="off">
+            <button class="btn btn-accent" type="submit">开始淘好物</button>
+          </form>
+          <div class="hero-tags">
+            <a href="products.html?category=教材书籍">📚 教材书籍</a>
+            <a href="products.html?category=电子数码">💻 电子数码</a>
+            <a href="products.html?category=生活用品">🪴 生活用品</a>
+            <a href="products.html?category=运动户外">🏸 运动户外</a>
+          </div>
+        </div>
+        <aside class="hero-panel" aria-label="平台数据">
+          <div class="hero-panel-title"><span>校园集正在发生</span><span>实时数据</span></div>
+          <div class="stat-grid">
+            <div class="stat-card"><strong id="stat-products">—</strong><span>件好物在售</span></div>
+            <div class="stat-card"><strong id="stat-users">—</strong><span>位校园用户</span></div>
+            <div class="stat-card"><strong id="stat-orders">—</strong><span>笔交易完成</span></div>
+            <div class="stat-card"><strong>9折</strong><span>学生专属优惠</span></div>
+          </div>
+          <div class="hero-note"><span>🎓</span><span>学生身份在注册时选择，下单时由服务端按 9 折结算，金额以两位小数记录。</span></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>校内交易更安心</h3>
+            <p>优先选择图书馆、宿舍楼下等公共场所见面，先验货再付款。</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">🎓</div>
+            <h3>学生价格透明</h3>
+            <p>学生用户自动享受 10% 减免，订单保留原价和优惠明细。</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">💬</div>
+            <h3>先沟通再下单</h3>
+            <p>商品详情页直接留言，卖家可以及时回复交易时间与地点。</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">♻️</div>
+            <h3>让物品多一次生命</h3>
+            <p>毕业季、换宿舍、课程结束，闲置物品都能找到下一位主人。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <h2 class="section-title">按分类逛逛</h2>
+            <p class="section-subtitle">从熟悉的校园生活场景出发，快速找到需要的东西。</p>
+          </div>
+          <a class="more-link" href="products.html">全部分类 →</a>
+        </div>
+        <div class="category-grid" id="category-grid" aria-live="polite">
+          <div class="skeleton" style="height:74px"></div>
+          <div class="skeleton" style="height:74px"></div>
+          <div class="skeleton" style="height:74px"></div>
+          <div class="skeleton" style="height:74px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <h2 class="section-title">刚刚上架</h2>
+            <p class="section-subtitle">新鲜闲置，先到先得。看到喜欢的可以先收藏。</p>
+          </div>
+          <a class="more-link" href="products.html?sort=newest">查看更多 →</a>
+        </div>
+        <div class="product-grid" id="latest-products" aria-live="polite">
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+        </div>
+        <div id="latest-error"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/home.js"></script>
+</body>
+</html>

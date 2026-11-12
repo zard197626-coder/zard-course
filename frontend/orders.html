@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="查看我买到的和卖出的校园二手订单，处理确认、取消和完成。">
+  <title>我的订单 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="orders">
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <h1>我的订单</h1>
+          <p>跟踪交易进度，及时确认、取消或完成订单。</p>
+        </div>
+        <a class="btn btn-ghost" href="my-products.html">我的商品</a>
+      </div>
+
+      <div class="row-between" style="margin-bottom:18px">
+        <div class="tabs" role="tablist" aria-label="订单角色">
+          <button class="tab active" type="button" data-role="buyer">我买到的</button>
+          <button class="tab" type="button" data-role="seller">我卖出的</button>
+        </div>
+        <div class="form-field" style="min-width:180px">
+          <label class="sr-only" for="order-status">订单状态</label>
+          <select class="select" id="order-status">
+            <option value="">全部状态</option>
+            <option value="待确认">待确认</option>
+            <option value="已确认">已确认</option>
+            <option value="已完成">已完成</option>
+            <option value="已取消">已取消</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="order-list" aria-live="polite"></div>
+      <div class="pagination" id="order-pagination"></div>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/orders.js"></script>
+</body>
+</html>

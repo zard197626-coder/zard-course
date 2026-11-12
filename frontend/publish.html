@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="发布校园二手闲置，填写商品信息并上架。">
+  <title>发布闲置 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="publish">
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <h1>发布闲置</h1>
+          <p>认真描述商品成色和交易方式，更容易遇到合适的买家。</p>
+        </div>
+        <a class="btn btn-ghost" href="my-products.html">我的商品</a>
+      </div>
+
+      <div class="detail-grid">
+        <section class="panel panel-pad">
+          <form id="publish-form" novalidate>
+            <div class="form-grid">
+              <div class="form-field full">
+                <label for="product-name">商品名称 <span class="required">*</span></label>
+                <input class="input" id="product-name" maxlength="80" placeholder="例如：高等数学教材（同济第七版）" required>
+              </div>
+              <div class="form-field full">
+                <label for="product-description">商品描述 <span class="required">*</span></label>
+                <textarea class="textarea" id="product-description" maxlength="2000" placeholder="说明成色、使用情况、配件、交易时间和地点等（至少 5 个字）" required></textarea>
+                <p class="form-hint">至少 5 个字，最多 2000 字。请勿填写手机号、宿舍门牌等敏感信息。</p>
+              </div>
+              <div class="form-field">
+                <label for="product-price">价格（元） <span class="required">*</span></label>
+                <input class="input" id="product-price" type="number" min="0.01" max="999999.99" step="0.01" placeholder="0.00" required>
+              </div>
+              <div class="form-field">
+                <label for="product-category">分类 <span class="required">*</span></label>
+                <select class="select" id="product-category" required>
+                  <option value="">请选择分类</option>
+                  <option value="教材书籍">教材书籍</option>
+                  <option value="电子数码">电子数码</option>
+                  <option value="生活用品">生活用品</option>
+                  <option value="运动户外">运动户外</option>
+                  <option value="服饰鞋包">服饰鞋包</option>
+                  <option value="美妆个护">美妆个护</option>
+                  <option value="票券卡券">票券卡券</option>
+                  <option value="其他">其他</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="product-campus">所在校区</label>
+                <select class="select" id="product-campus">
+                  <option value="主校区">主校区</option>
+                  <option value="东校区">东校区</option>
+                  <option value="西校区">西校区</option>
+                  <option value="南校区">南校区</option>
+                  <option value="北校区">北校区</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="product-image">商品图片 URL</label>
+                <input class="input" id="product-image" type="url" maxlength="500" placeholder="https://example.com/image.jpg">
+                <p class="form-hint">可选，支持 http(s) 图片地址或站内路径。</p>
+              </div>
+            </div>
+            <div class="form-message" id="publish-message" role="alert"></div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit" id="publish-submit">发布商品</button>
+              <a class="btn btn-ghost" href="products.html">取消</a>
+            </div>
+            <p class="form-hint" style="margin-top:14px">学生买家下单时，平台会自动按 9 折计算最终价格；你收到的订单会保留原价和优惠明细。</p>
+          </form>
+        </section>
+
+        <aside class="side-stack">
+          <div class="panel panel-pad">
+            <h2 style="margin:0 0 12px;font-size:1rem">封面预览</h2>
+            <div class="product-media" id="publish-preview" style="border-radius:12px;overflow:hidden">
+              <div class="media-placeholder">📦</div>
+            </div>
+            <p class="form-hint" style="margin-top:10px">填写图片 URL 后会在这里预览。没有图片也可以发布。</p>
+          </div>
+          <div class="panel safety-card"><strong>发布小贴士</strong><br>真实描述成色和瑕疵；价格建议参考同类商品；约定在图书馆、教学楼等公共场所交易。</div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/publish.js"></script>
+</body>
+</html>

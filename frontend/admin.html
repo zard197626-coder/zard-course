@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="校园集管理员后台，查看统计数据、管理用户和下架违规商品。">
+  <title>管理员后台 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="admin">
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <h1>管理员后台 <span class="badge badge-soft" style="vertical-align:middle">ADMIN</span></h1>
+          <p>查看平台基础统计，管理用户账号，处理违规商品。</p>
+        </div>
+        <button class="btn btn-ghost" type="button" id="admin-refresh">↻ 刷新统计</button>
+      </div>
+
+      <div id="admin-stats">
+        <div class="admin-stat-grid">
+          <div class="skeleton" style="height:102px"></div>
+          <div class="skeleton" style="height:102px"></div>
+          <div class="skeleton" style="height:102px"></div>
+          <div class="skeleton" style="height:102px"></div>
+        </div>
+      </div>
+
+      <section class="panel" style="margin-top:20px">
+        <div class="panel-head"><h2>最近订单</h2><span class="muted small">最新 5 笔</span></div>
+        <div id="recent-orders"><div class="loading-block"><div class="spinner"></div></div></div>
+      </section>
+
+      <div class="admin-grid" style="margin-top:20px">
+        <section class="panel">
+          <div class="panel-head"><h2>用户管理</h2><span class="muted small" id="admin-user-count"></span></div>
+          <form class="admin-toolbar" id="user-search-form">
+            <input class="input" id="user-search" type="search" placeholder="搜索用户名、邮箱或昵称">
+            <button class="btn btn-primary btn-sm" type="submit">搜索</button>
+            <button class="btn btn-ghost btn-sm" type="button" id="user-search-reset">清空</button>
+          </form>
+          <div class="table-wrap" id="admin-users"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><h2>商品管理</h2><span class="muted small" id="admin-product-count"></span></div>
+          <form class="admin-toolbar" id="product-search-form">
+            <input class="input" id="product-search" type="search" placeholder="搜索商品名称或描述">
+            <select class="select" id="product-status">
+              <option value="">全部状态</option>
+              <option value="在售">在售</option>
+              <option value="已预订">已预订</option>
+              <option value="已售出">已售出</option>
+              <option value="已下架">已下架</option>
+            </select>
+            <button class="btn btn-primary btn-sm" type="submit">筛选</button>
+          </form>
+          <div class="table-wrap" id="admin-products"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/admin.js"></script>
+</body>
+</html>

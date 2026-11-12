@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="管理校园集个人资料、密码和我的留言。">
+  <title>个人中心 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="profile">
+  <header id="site-header" class="site-header"></header>
+
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <h1>个人中心</h1>
+          <p>维护个人资料、账号安全，并查看你发出和收到的留言。</p>
+        </div>
+        <a class="btn btn-ghost" href="my-products.html">我的商品</a>
+      </div>
+
+      <div class="profile-grid">
+        <aside class="panel profile-card" id="profile-card">
+          <div class="loading-block" style="min-height:160px"><div class="spinner"></div></div>
+        </aside>
+
+        <div class="profile-sections">
+          <section class="panel">
+            <div class="panel-head"><h2>个人资料</h2><span class="muted small">用于展示给交易对方</span></div>
+            <div class="panel-body">
+              <form id="profile-form" novalidate>
+                <div class="form-grid">
+                  <div class="form-field">
+                    <label for="profile-name">昵称 <span class="required">*</span></label>
+                    <input class="input" id="profile-name" maxlength="30" required>
+                  </div>
+                  <div class="form-field">
+                    <label for="profile-campus">所在校区</label>
+                    <select class="select" id="profile-campus">
+                      <option value="主校区">主校区</option>
+                      <option value="东校区">东校区</option>
+                      <option value="西校区">西校区</option>
+                      <option value="南校区">南校区</option>
+                      <option value="北校区">北校区</option>
+                    </select>
+                  </div>
+                  <div class="form-field full">
+                    <label for="profile-avatar">头像 URL</label>
+                    <input class="input" id="profile-avatar" type="url" maxlength="500" placeholder="https://example.com/avatar.jpg">
+                  </div>
+                  <div class="form-field full">
+                    <label for="profile-bio">个人简介</label>
+                    <textarea class="textarea" id="profile-bio" maxlength="300" style="min-height:90px" placeholder="介绍一下你的交易偏好或常驻校区"></textarea>
+                  </div>
+                  <div class="form-field full">
+                    <label class="checkbox-row">
+                      <input type="checkbox" id="profile-student">
+                      <span>我是学生用户 <span class="muted tiny">（勾选后新订单自动享受 9 折；已创建订单的价格不会改变）</span></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="form-message" id="profile-message" role="alert"></div>
+                <div class="form-actions"><button class="btn btn-primary" type="submit" id="profile-submit">保存资料</button></div>
+              </form>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><h2>修改密码</h2><span class="muted small">修改后其他设备会被退出</span></div>
+            <div class="panel-body">
+              <form id="password-form" novalidate>
+                <div class="form-grid">
+                  <div class="form-field full">
+                    <label for="current-password">当前密码 <span class="required">*</span></label>
+                    <input class="input" id="current-password" type="password" autocomplete="current-password" required>
+                  </div>
+                  <div class="form-field">
+                    <label for="new-password">新密码 <span class="required">*</span></label>
+                    <input class="input" id="new-password" type="password" autocomplete="new-password" placeholder="至少 8 位，含字母和数字" required>
+                  </div>
+                  <div class="form-field">
+                    <label for="confirm-password">确认新密码 <span class="required">*</span></label>
+                    <input class="input" id="confirm-password" type="password" autocomplete="new-password" required>
+                  </div>
+                </div>
+                <div class="form-message" id="password-message" role="alert"></div>
+                <div class="form-actions"><button class="btn btn-outline" type="submit" id="password-submit">修改密码</button></div>
+              </form>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><h2>我的留言</h2>
+              <div class="tabs" id="message-tabs">
+                <button class="tab active" type="button" data-scope="authored">我发出的</button>
+                <button class="tab" type="button" data-scope="received">我收到的</button>
+              </div>
+            </div>
+            <div class="panel-body" id="profile-messages"><div class="loading-block"><div class="spinner"></div><span>加载留言…</span></div></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/profile.js"></script>
+</body>
+</html>

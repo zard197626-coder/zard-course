@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="登录校园集，发布闲置、收藏商品和创建订单。">
+  <title>登录 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="login">
+  <header id="site-header" class="site-header"></header>
+
+  <main>
+    <div class="container auth-page">
+      <aside class="auth-aside">
+        <div>
+          <span class="hero-badge">🌿 欢迎回到校园集</span>
+          <h1 style="margin-top:20px">好物在等<br>下一位同学</h1>
+          <p>登录后可以发布闲置、收藏喜欢的商品、给卖家留言，并以学生身份享受 9 折结算。</p>
+          <div class="auth-points">
+            <div class="auth-point"><span>1</span>校内见面，先验货再付款</div>
+            <div class="auth-point"><span>2</span>学生用户自动享受 10% 减免</div>
+            <div class="auth-point"><span>3</span>卖家确认后才算交易达成</div>
+          </div>
+        </div>
+        <p class="tiny" style="margin:0;color:rgba(255,255,255,.55)">校园集 · 让闲置继续流动</p>
+      </aside>
+
+      <section class="panel auth-card">
+        <h2>登录账号</h2>
+        <p>使用用户名或邮箱登录你的校园集账号。</p>
+        <form id="login-form" novalidate>
+          <div class="form-field">
+            <label for="login-account">用户名或邮箱 <span class="required">*</span></label>
+            <input class="input" id="login-account" name="username" autocomplete="username" placeholder="例如：campus_buyer" required>
+          </div>
+          <div class="form-field">
+            <label for="login-password">密码 <span class="required">*</span></label>
+            <div class="password-wrap">
+              <input class="input" id="login-password" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" required>
+              <button class="password-toggle" type="button" data-toggle-password="login-password">显示</button>
+            </div>
+          </div>
+          <div class="form-message" id="login-message" role="alert"></div>
+          <button class="btn btn-primary btn-block" type="submit" id="login-submit" style="margin-top:20px">登录</button>
+        </form>
+        <p class="auth-footer">还没有账号？<a href="register.html" id="register-link">立即注册</a></p>
+        <p class="tiny muted center" style="margin-top:12px">管理员账号由后端 seed 脚本创建，初始密码只在终端显示一次。</p>
+      </section>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/login.js"></script>
+</body>
+</html>

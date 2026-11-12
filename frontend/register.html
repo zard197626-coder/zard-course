@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="注册校园集账号，发布和购买校园二手好物。">
+  <title>注册 · 校园集</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="register">
+  <header id="site-header" class="site-header"></header>
+
+  <main>
+    <div class="container auth-page">
+      <aside class="auth-aside">
+        <div>
+          <span class="hero-badge">🎓 新同学你好</span>
+          <h1 style="margin-top:20px">把闲置<br>交给下一位同学</h1>
+          <p>注册校园集账号，发布你的第一件闲置。学生身份在注册时选择，之后可以在个人中心修改。</p>
+          <div class="auth-points">
+            <div class="auth-point"><span>✓</span>免费注册，随时发布</div>
+            <div class="auth-point"><span>✓</span>密码使用 PBKDF2 加盐存储</div>
+            <div class="auth-point"><span>✓</span>学生订单自动计算优惠</div>
+          </div>
+        </div>
+        <p class="tiny" style="margin:0;color:rgba(255,255,255,.55)">校园集 · 让闲置继续流动</p>
+      </aside>
+
+      <section class="panel auth-card">
+        <h2>创建账号</h2>
+        <p>填写基本信息，带 <span class="text-danger">*</span> 的为必填项。</p>
+        <form id="register-form" novalidate>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="reg-username">用户名 <span class="required">*</span></label>
+              <input class="input" id="reg-username" name="username" autocomplete="username" minlength="3" maxlength="30" placeholder="3-30 个字符，无空格" required>
+            </div>
+            <div class="form-field">
+              <label for="reg-email">邮箱 <span class="required">*</span></label>
+              <input class="input" id="reg-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-field">
+              <label for="reg-password">密码 <span class="required">*</span></label>
+              <div class="password-wrap">
+                <input class="input" id="reg-password" name="password" type="password" autocomplete="new-password" placeholder="至少 8 位，含字母和数字" required>
+                <button class="password-toggle" type="button" data-toggle-password="reg-password">显示</button>
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="reg-confirm">确认密码 <span class="required">*</span></label>
+              <input class="input" id="reg-confirm" name="confirm" type="password" autocomplete="new-password" placeholder="再次输入密码" required>
+            </div>
+            <div class="form-field">
+              <label for="reg-campus">所在校区</label>
+              <select class="select" id="reg-campus" name="campus">
+                <option value="主校区">主校区</option>
+                <option value="东校区">东校区</option>
+                <option value="西校区">西校区</option>
+                <option value="南校区">南校区</option>
+                <option value="北校区">北校区</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>身份</label>
+              <label class="checkbox-row" style="padding-top:8px">
+                <input type="checkbox" id="reg-student" name="is_student" checked>
+                <span>我是学生，下单享受 9 折</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-message" id="register-message" role="alert"></div>
+          <button class="btn btn-primary btn-block" type="submit" id="register-submit" style="margin-top:20px">注册并登录</button>
+        </form>
+        <p class="auth-footer">已经有账号？<a href="login.html" id="login-link">返回登录</a></p>
+      </section>
+    </div>
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/pages/register.js"></script>
+</body>
+</html>
