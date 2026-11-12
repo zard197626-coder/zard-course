@@ -177,6 +177,7 @@ student-discount-project/
 │       └── pages/            # 各页面业务脚本
 ├── checkout.py               # 保留的原始学生折扣逻辑
 ├── test_checkout.py          # 保留的原始 5 项测试
+├── start.bat                 # Windows 一键启动（建环境/装依赖/初始化/启动/开浏览器）
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
@@ -227,7 +228,22 @@ pytest==8.4.2
 httpx==0.28.1
 ```
 
-### 3. 可选：配置环境变量
+### 3. Windows 一键启动（推荐）
+
+双击项目根目录的 `start.bat` 即可。脚本会自动：
+
+1. 进入项目目录；
+2. 复用已有 `.venv`，没有则尝试用 `py` / `python` 创建；
+3. 检查并安装 `requirements.txt` 依赖；
+4. 首次运行时执行 `python -m backend.seed` 初始化数据库；
+5. 启动 FastAPI；
+6. 延迟 3 秒自动打开 <http://127.0.0.1:8000/>。
+
+首次初始化时，请记录终端打印的管理员和演示账号密码。服务运行期间保持窗口开启；按 `Ctrl+C` 或关闭窗口即可停止。
+
+如果 8000 端口上已经有本项目在运行，脚本会直接打开浏览器，不会重复启动。
+
+### 4. 可选：配置环境变量
 
 ```powershell
 Copy-Item .env.example .env
