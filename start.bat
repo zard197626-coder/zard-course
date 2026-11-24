@@ -4,6 +4,12 @@ chcp 65001 >nul
 title 校园集 - 一键启动
 cd /d "%~dp0"
 
+REM 如果 Explorer 还未刷新 PATH，优先使用当前用户安装的 Python 3.12。
+if exist "%LocalAppData%\Programs\Python\Python312\python.exe" (
+    set "PATH=%LocalAppData%\Programs\Python\Python312;%LocalAppData%\Programs\Python\Python312\Scripts;%PATH%"
+    set PYTHON_CMD="%LocalAppData%\Programs\Python\Python312\python.exe"
+)
+
 set "URL=http://127.0.0.1:8000/"
 set "VENV_PY=%CD%\.venv\Scripts\python.exe"
 set "PYTHONUTF8=1"
@@ -94,23 +100,17 @@ pause
 exit /b 0
 
 :find_python
+if defined PYTHON_CMD exit /b 0
 set "PYTHON_CMD="
-py -3.12 -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1
-if not errorlevel 1 set "PYTHON_CMD=py -3.12"
-if not defined PYTHON_CMD (
-    py -3 -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1
-    if not errorlevel 1 set "PYTHON_CMD=py -3"
-)
-if not defined PYTHON_CMD (
-    python -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1
-    if not errorlevel 1 set "PYTHON_CMD=python"
-)
-if not defined PYTHON_CMD (
-    python3 -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1
-    if not errorlevel 1 set "PYTHON_CMD=python3"
-)
-if not defined PYTHON_CMD exit /b 1
-exit /b 0
+py -3.12 -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1 && set "PYTHON_CMD=py -3.12"
+if defined PYTHON_CMD exit /b 0
+py -3 -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1 && set "PYTHON_CMD=py -3"
+if defined PYTHON_CMD exit /b 0
+python -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1 && set "PYTHON_CMD=python"
+if defined PYTHON_CMD exit /b 0
+python3 -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1 && set "PYTHON_CMD=python3"
+if defined PYTHON_CMD exit /b 0
+exit /b 1
 
 :no_python
 echo.
