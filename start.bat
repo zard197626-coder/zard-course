@@ -9,6 +9,20 @@ set "VENV_PY=%CD%\.venv\Scripts\python.exe"
 set "PYTHONUTF8=1"
 set "PYTHONDONTWRITEBYTECODE=1"
 
+REM MSYS2/MinGW Python creates .venv\bin instead of .venv\Scripts and cannot
+REM install pydantic-core (no compatible wheel). Give a clear explanation.
+if not exist "%VENV_PY%" if exist "%CD%\.venv\bin\python.exe" (
+    echo.
+    echo [错误] 检测到 MSYS2/MinGW 虚拟环境。
+    echo        当前 python 不是 Windows 原生 CPython，FastAPI 的 pydantic-core
+    echo        没有对应的 Windows wheel，无法安装依赖。
+    echo.
+    echo        请安装 python.org 的 Windows 版 Python 3.12，删除 .venv 后重试。
+    echo.
+    pause
+    exit /b 1
+)
+
 echo ==========================================
 echo    校园集 · 校园二手交易平台
 echo ==========================================
@@ -81,24 +95,32 @@ exit /b 0
 
 :find_python
 set "PYTHON_CMD="
-py -3.12 -c "import sys" >nul 2>&1
+py -3.12 -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1
 if not errorlevel 1 set "PYTHON_CMD=py -3.12"
 if not defined PYTHON_CMD (
-    py -3 -c "import sys" >nul 2>&1
+    py -3 -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1
     if not errorlevel 1 set "PYTHON_CMD=py -3"
 )
 if not defined PYTHON_CMD (
-    python -c "import sys" >nul 2>&1
+    python -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1
     if not errorlevel 1 set "PYTHON_CMD=python"
+)
+if not defined PYTHON_CMD (
+    python3 -c "import sys,sysconfig;raise SystemExit(0 if sysconfig.get_platform().startswith('win') else 1)" >nul 2>&1
+    if not errorlevel 1 set "PYTHON_CMD=python3"
 )
 if not defined PYTHON_CMD exit /b 1
 exit /b 0
 
 :no_python
 echo.
-echo [错误] 未找到 Python。
-echo        请安装 Python 3.10 或更高版本，安装时勾选 "Add Python to PATH"，
-echo        然后重新双击本脚本。
+echo [错误] 未找到可用的 Windows 原生 Python。
+echo        如果 python 来自 MSYS2/UCRT64，它生成的虚拟环境不兼容
+echo        FastAPI 的 pydantic-core 依赖。
+echo.
+echo        请安装 python.org 的 Windows 版 Python 3.10 或更高版本，
+echo        安装时勾选 "Add Python to PATH"，然后重新双击本脚本。
+echo        也可以使用项目原来已经配置好的 .venv。
 echo.
 pause
 exit /b 1
@@ -106,7 +128,8 @@ exit /b 1
 :venv_error
 echo.
 echo [错误] 创建虚拟环境失败。
-echo        请确认 Python 安装完整，并且当前目录有写入权限。
+echo        请确认使用的是 python.org 的 Windows 版 Python，
+echo        且当前目录有写入权限。
 echo.
 pause
 exit /b 1

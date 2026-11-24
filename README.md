@@ -243,6 +243,8 @@ httpx==0.28.1
 
 如果 8000 端口上已经有本项目在运行，脚本会直接打开浏览器，不会重复启动。
 
+> **Windows 用户请注意：**请使用 python.org 的 Windows 原生 CPython。MSYS2 / UCRT64 的 Python 会创建 `.venv\bin`（而不是 `.venv\Scripts`），其 `mingw_x86_64_ucrt_gnu` ABI 没有 `pydantic-core` 的现成 wheel，依赖安装会失败。`start.bat` 会检测这种情况并给出提示，但不会自动修复 Python 安装。
+
 ### 4. 可选：配置环境变量
 
 ```powershell
@@ -860,6 +862,23 @@ python -m backend.seed
 ### 12. 是否真的会扣款
 
 不会。模拟支付只写入本地 SQLite 的 `payments` 表，不连接任何银行或第三方支付平台，也不接收真实卡号、密码或验证码。
+
+### 13. 为什么 `python -m venv` 创建后只有 `bin`，没有 `Scripts`
+
+说明当前 `python` 来自 MSYS2 / UCRT64，不是 python.org 的 Windows 原生 CPython。它生成的虚拟环境使用 `bin` 目录，且 ABI 为 `mingw_x86_64_ucrt_gnu`，`pydantic-core` 没有对应 wheel，最终会尝试从源码编译并失败。
+
+解决方式：
+
+1. 安装 python.org 的 Windows 版 Python 3.10+（推荐 3.12），安装时勾选 “Add Python to PATH”；
+2. 删除项目里的 `.venv`；
+3. 重新双击 `start.bat`。
+
+如果该电脑上已有可用的 Windows 原生 Python 虚拟环境，也可以直接在 `start.bat` 所在目录执行：
+
+```powershell
+<路径到 Windows 原生 Python>\python.exe -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
 
 ---
 
